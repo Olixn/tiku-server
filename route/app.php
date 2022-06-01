@@ -12,8 +12,15 @@ use think\facade\Route;
 
 Route::get('hello/:name', 'index/hello');
 
+Route::post('active','Api/ActiveScript');
+Route::get('notice','Api/GetNotice');
+
 Route::group('cx',function () {
     Route::get('encode','Api/GetEnc');
     Route::post('getAnswer','Api/GetCxAnswer');
     Route::post('upload','Api/UpDateCxAnswer');
+})->middleware('check');
+
+Route::group('admin',function () {
+    Route::get('addCode','Admin/AddCode');
 });

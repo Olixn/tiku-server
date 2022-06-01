@@ -3,6 +3,7 @@ namespace app\dao;
 
 use app\BaseController;
 use app\model\Topic;
+use think\cache\driver\Redis;
 use think\facade\Request;
 
 class CxDao
@@ -18,9 +19,9 @@ class CxDao
      * 获取题目答案
      * 
      * @param String $question
-     * @return String $answer
+     * @return array $answer
      */
-    public function GetAnswer(string $question): string
+    public function GetAnswer(string $question): array
     {
         $this->ip = $this->GetIP();
         $this->hash = $this->GetHash($question);
@@ -56,13 +57,20 @@ class CxDao
         return $request->ip();
     }
 
-    protected function QueryAnswer()
+    protected function QueryAnswer(): array
     {
-        if ($this->QueryRedis()) {
-            return 'redis get';
+        $res = $this->QueryRedis();
+        if ($res) {
+            return ['kid'=>4,'answer'=>$res];
         } else {
             $res = $this->QueryDb();
-            return $res[0]['answer'];
+            if ($res) {
+                $this->save2redis($res[0]['answer']);
+                return ['kid'=>1,'answer'=>$res[0]['answer']];
+            } else {
+                return ['kid'=>1,'answer'=>null];
+            }
+
         }
     }
 
@@ -76,7 +84,11 @@ class CxDao
 
     protected function QueryRedis()
     {
-        return false;
+        $redis = new \Redis();
+        $redis->connect('127.0.0.1', 6379);
+        $redis->select(1);
+
+        return $redis->get($this->hash);
     }
 
     protected function UpDate()
@@ -93,10 +105,19 @@ class CxDao
             ];
             $db->save($data);
         } else {
-            $db->save([
+            $db->where('hash',$this->hash)->update([
                 'answer'        => $this->answer,
                 'type'          => $this->type,
-            ],['hash' => $this->hash]);
+            ]);
         }
+    }
+
+    protected function save2redis($answer)
+    {
+        $redis = new \Redis();
+        $redis->connect('127.0.0.1', 6379);
+        $redis->select(1);
+
+        $redis->set($this->hash,$answer,1800);
     }
 }

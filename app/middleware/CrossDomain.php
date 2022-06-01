@@ -9,7 +9,7 @@ use think\Response;
  * @package app\middleware
  */
 
-class Cros
+class CrossDomain
 {
     public function handle($request, \Closure $next)
     {

@@ -2,11 +2,12 @@
 
 namespace app\controller;
 
-use http\Params;
+
+use app\model\CxUser;
 
 class CxEnc
 {
-    public function Enc(Params $params): string
+    public function Enc($params): string
     {
         $classId = $params['a'];
         $userId = $params['b'];
@@ -16,11 +17,16 @@ class CxEnc
         $duration = $params['f'];
         $clipTime = $params['g'];
 
-        $enc = sprintf("[%s][%s][%s][%s][%s][%s][%s][%s]",$classId,$userId,$jobId,$objectId,$playingTime*1000,'d_yHJ!$pdA~5',$duration*1000,$clipTime);
-        // # classId, userid, jobid, objectid,playingTime * 1000, "d_yHJ!$pdA~5",duration * 1000, clipTime
-        // enc = "[{0}][{1}][{2}][{3}][{4}][{5}][{6}][{7}]".format(str(a), b, c, d,
-        //                                                             e * 1000, "d_yHJ!$pdA~5",
-        //                                                             f * 1000, g)
+
+        if ((new CxUser())->where('uid',$userId)->find()) {
+            $enc = sprintf("[%s][%s][%s][%s][%s][%s][%s][%s]",$classId,$userId,$jobId,$objectId,$playingTime*1000,'d_yHJ!$pdA~5',$duration*1000,$clipTime);
+        } else {
+            $enc = '123456789';
+            // # classId, userid, jobid, objectid,playingTime * 1000, "d_yHJ!$pdA~5",duration * 1000, clipTime
+            // enc = "[{0}][{1}][{2}][{3}][{4}][{5}][{6}][{7}]".format(str(a), b, c, d,
+            //                                                             e * 1000, "d_yHJ!$pdA~5",
+            //
+        }
         return md5($enc);
     }
 }
