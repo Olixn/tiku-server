@@ -11,4 +11,9 @@
 use think\facade\Route;
 
 Route::get('hello/:name', 'index/hello');
-Route::get('ss','api/index');
+
+Route::group('cx',function () {
+    Route::get('encode','Api/GetEnc');
+    Route::post('getAnswer','Api/GetCxAnswer');
+    Route::post('upload','Api/UpDateCxAnswer');
+});
