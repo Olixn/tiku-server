@@ -25,19 +25,18 @@ class CxUserDao
         $dbUser = new CxUser();
         $dbCode = new CxCode();
         $ip = (new Utils())->GetIP();
-        $res = $dbCode->where('encode',$code)->find();
-        if (!$res || $res['s']) {
-            return ['code'=>0,'msg'=>'激活码不存在或已被使用！'];
-        } else {
-            $dbCode->where('id',$res['id'])->update(['s'=>1]);
-            $ress = $dbUser->where('uid',$uid)->find();
-            if (!$ress) {
+        $user = $dbUser->where('uid',$uid)->find();
+        if (!$user) {
+            $res = $dbCode->where('encode',$code)->find();
+            if (!$res || $res['s']) {
+                return ['code'=>0,'msg'=>'激活码不存在或已被使用！'];
+            } else {
+                $dbCode->where('id',$res['id'])->update(['s'=>1]);
                 $dbUser->insert(['uid'=>$uid,'encode'=>$code,'ip'=>$ip]);
                 return ['code'=>1,'msg'=>'授权激活成功！'];
-            } else {
-                $dbUser->where('id',$ress['id'])->update(['encode'=>$code,'ip'=>$ip]);
-                return  ['code'=>1,'msg'=>'授权更新成功！'];
             }
+        } else {
+            return  ['code'=>1,'msg'=>'该用户已激活，请到期后再试！'];
         }
     }
 }
