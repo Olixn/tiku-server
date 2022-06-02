@@ -61,6 +61,21 @@ class Api extends BaseController
         ]);
     }
 
+    public function GetAuthStatus(Request $request): Json
+    {
+        $uid = $request->param('uid');
+        if ($uid && (new CxUserDao())->AuthStatus($uid)) {
+            return json([
+                'code'=>1,
+                'msg'=>'该用户已激活脚本！'
+            ]);
+        } else {
+            return json([
+                'code'=>0,
+                'msg'=>'未激活用户！'
+            ]);
+        }
+    }
 
     public function GetCxAnswer(Request $request): Json
     {

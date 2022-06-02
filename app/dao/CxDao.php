@@ -1,9 +1,8 @@
 <?php
 namespace app\dao;
 
-use app\BaseController;
 use app\model\Topic;
-use think\cache\driver\Redis;
+use app\model\Wenti;
 use think\facade\Request;
 
 class CxDao
@@ -65,9 +64,10 @@ class CxDao
         } else {
             $res = $this->QueryDb();
             if ($res) {
-                $this->save2redis($res[0]['answer']);
-                return ['kid'=>1,'answer'=>$res[0]['answer']];
+                $this->save2redis($res['answer']);
+                return ['kid'=>1,'answer'=>$res['answer']];
             } else {
+                $this->saveQuestion();
                 return ['kid'=>1,'answer'=>null];
             }
 
@@ -79,7 +79,7 @@ class CxDao
         $db = new Topic();
         return $db->withSearch(['hash'],[
             'hash' => $this->hash,
-        ])->field('answer')->select();
+        ])->field('answer')->find();
     }
 
     protected function QueryRedis()
@@ -95,7 +95,7 @@ class CxDao
     {
         $result = $this->QueryDb();
         $db = new Topic();
-        if ($result->isEmpty()){
+        if (!$result){
             $data = [
                 'type'          => $this->type,
                 'topic'         => $this->question,
@@ -119,5 +119,19 @@ class CxDao
         $redis->select(1);
 
         $redis->set($this->hash,$answer,1800);
+    }
+
+    protected function saveQuestion()
+    {
+        $db = new Wenti();
+        $res = $db->where('hash',$this->hash)->find();
+        if (!$res) {
+            $db->insert([
+                'topic'         => $this->question,
+                'hash'          => $this->hash,
+                'ip'            => $this->ip,
+                'plantform'     => 1
+            ]);
+        }
     }
 }

@@ -14,6 +14,7 @@ Route::get('hello/:name', 'index/hello');
 
 Route::post('active','Api/ActiveScript');
 Route::get('notice','Api/GetNotice');
+Route::get('authStatus','Api/GetAuthStatus');
 
 Route::group('cx',function () {
     Route::get('encode','Api/GetEnc');

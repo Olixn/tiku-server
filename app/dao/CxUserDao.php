@@ -9,6 +9,17 @@ use app\model\CxUser;
 class CxUserDao
 {
 
+    public function AuthStatus($uid): bool
+    {
+        $db = new CxUser();
+        $res = $db->where('uid',$uid)->find();
+        if ($res) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public function CheckAuth($uid): bool
     {
         $db = new CxUser();
