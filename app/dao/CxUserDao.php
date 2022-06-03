@@ -33,6 +33,9 @@ class CxUserDao
 
     public function Auth($uid,$code)
     {
+        if (!is_numeric($uid) || strlen($code) != 32) {
+            return ['code'=>0,'msg'=>'Fuck You!!!!'];
+        }
         $dbUser = new CxUser();
         $dbCode = new CxCode();
         $ip = (new Utils())->GetIP();
