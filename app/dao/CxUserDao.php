@@ -34,7 +34,7 @@ class CxUserDao
     public function Auth($uid,$code)
     {
         if (!is_numeric($uid) || strlen($code) != 32) {
-            return ['code'=>0,'msg'=>'Fuck You!!!!'];
+            return ['code'=>0,'msg'=>'不要想，去感受。Just Fuck You!'];
         }
         $dbUser = new CxUser();
         $dbCode = new CxCode();
@@ -42,15 +42,17 @@ class CxUserDao
         $user = $dbUser->where('uid',$uid)->find();
         if (!$user) {
             $res = $dbCode->where('encode',$code)->find();
-            if (!$res || $res['s']) {
-                return ['code'=>0,'msg'=>'激活码不存在或已被使用！'];
-            } else {
+            if (!$res) {
+                return ['code'=>0,'msg'=>'😓激活码不存在'];
+            } else if ($res['s']) {
+                return ['code'=>0,'msg'=>'👉激活码已于'.$res['update_time'].'被使用'];
+            }else {
                 $dbCode->where('id',$res['id'])->update(['s'=>1]);
                 $dbUser->insert(['uid'=>$uid,'encode'=>$code,'ip'=>$ip]);
-                return ['code'=>1,'msg'=>'授权激活成功！'];
+                return ['code'=>1,'msg'=>'🎈授权激活成功！'];
             }
         } else {
-            return  ['code'=>1,'msg'=>'该用户已激活，请到期后再试！'];
+            return  ['code'=>1,'msg'=>'🔔该用户ID已于'.$user['create_time'].'激活，请到期后再试！'];
         }
     }
 }
