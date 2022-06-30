@@ -33,7 +33,7 @@ class CxUserDao
 
     public function Auth($uid,$code)
     {
-        if (!is_numeric($uid) || strlen($code) != 32) {
+        if (!(is_numeric($uid) && strlen($uid) <= 15) || strlen($code) != 32 ) {
             return ['code'=>0,'msg'=>'不要想，去感受。Just Fuck You!'];
         }
         $dbUser = new CxUser();
